@@ -1,0 +1,142 @@
+<!--
+    THIS EXAMPLE WAS DOWNLOADED FROM https://echarts.apache.org/examples/zh/editor.html?c=mix-zoom-on-value
+-->
+<!DOCTYPE html>
+<html style="height: 100%">
+    <head>
+        <meta charset="utf-8">
+    </head>
+    <body style="height: 100%; margin: 0">
+        <div id="container" style="height: 100%"></div>
+
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@5.3.1/dist/echarts.min.js"></script>
+
+        <script type="text/javascript">
+            var dom = document.getElementById("container");
+            var myChart = echarts.init(dom);
+            var app = {};
+            myChart.showLoading();
+            var data_name = {{ name|safe }}
+            var data_value = {{ value|safe }}
+            var city_data = {{ city_data|safe }}
+            myChart.hideLoading();
+
+            var option;
+
+                option = {
+                    label:{show:false},
+                  tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                      type: 'shadow',
+                      label: {
+                        show: true
+                      }
+                    }
+                  },
+                  toolbox: {
+                    show: true,
+                    feature: {
+                      mark: { show: true },
+                      dataView: { show: true, readOnly: false },
+                      magicType: { show: true, type: ['line', 'bar'] },
+                      restore: { show: true },
+                      saveAsImage: { show: true }
+                    }
+                  },
+                  calculable: true,
+                  legend: {
+                    data: ['Growth', 'GDP2019'],
+                    itemGap: 5
+                  },
+                  grid: {
+                    top: '12%',
+                    left: '1%',
+                    right: '10%',
+                    containLabel: true
+                  },
+                  xAxis: [
+                    {
+                      type: 'category',
+                      data: data_name
+                    }
+                  ],
+                  yAxis: [
+                    {
+                      type: 'value',
+                          name: 'GDP 2019/万元',
+                      axisLabel: {
+                        formatter: function (a) {
+                          a = +a;
+                          return isFinite(a) ? echarts.format.addCommas(+a / 1000) : '';
+                        }
+                      }
+                    }
+                  ],
+                  dataZoom: [
+                    {
+                      show: true,
+                      start: 94,
+                      end: 100
+                    },
+                    {
+                      type: 'inside',
+                      start: 94,
+                      end: 100
+                    },
+                    {
+                      show: true,
+                      yAxisIndex: 0,
+                      filterMode: 'empty',
+                      width: 30,
+                      height: '80%',
+                      showDataShadow: false,
+                      left: '93%'
+                    }
+                  ],
+                  series: [
+                    {
+                      name: 'GDP 2019',
+                      type: 'bar',
+                      data: data_value
+                    }
+                  ]
+                };
+                myChart.setOption(option);
+
+                myChart.on('click', function (params) {
+                    if(params.dataIndex>=20){
+                        {#console.log(params)#}
+                    myChart.setOption({
+                xAxis:
+                {
+                    name:"年",
+                    type: 'category',
+                    data: [2010, 2011, 2012, 2013, 2014, 2015, 2016,2017,2018,2019]
+                },
+              yAxis:
+            {
+                name:params.name+" GDP/万元",
+                type: 'value'
+            },
+                    label: {show:true},
+              series: [
+                {
+                    clickable:false,
+                  data: city_data[params.name],
+                  type: 'line',
+                  smooth: true
+                }
+              ]},true);
+                          setInterval(function () {myChart.setOption(option)}, 10000);
+                }});
+
+            if (option && typeof option === 'object') {
+                myChart.setOption(option);
+            }
+
+        </script>
+    </body>
+</html>
+    

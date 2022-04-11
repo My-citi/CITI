@@ -1,0 +1,80 @@
+<!--
+    THIS EXAMPLE WAS DOWNLOADED FROM https://echarts.apache.org/examples/zh/editor.html?c=heatmap-bmap
+-->
+<!DOCTYPE html>
+<html style="height: 100%">
+    <head>
+            <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@5.3.1/dist/echarts.min.js"></script>
+            {% load static %}
+            <script src="{% static '/js/echarts.min.js' %}"></script>
+    <script src="{% static '/js/ecStat.min.js' %}"></script>
+    <script src="{%static '/js/echarts.js' %}"></script>
+    <script src="{% static '/js/china.js'%}"></script>
+    <script src="{% static '/json/chalk_theme.js' %}"></script>
+        <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=z96y5HWTuUfIu1dupEvCl6YNKmE1TUVG"></script>
+        <script type="text/javascript" src="{% static 'echarts-5.3.0\dist\extension\bmap.min.js' %} "></script>
+
+        <meta charset="utf-8">
+    </head>
+    <body style="height: 100%; margin: 0">
+        <div id="container" style="height: 100%"></div>
+
+        <script type="text/javascript">
+var dom = document.getElementById("container");
+var myChart = echarts.init(dom);
+var app = {};
+myChart.showLoading();
+var data = {{lists|safe}}
+myChart.hideLoading();
+var option;
+
+  var points = [].concat.apply(
+    [],
+    data.map(function (track) {
+      return track.map(function (seg) {
+        return seg.coord.concat([1]);
+      });
+    })
+  );
+  myChart.setOption(
+    (option = {
+      animation: false,
+      bmap: {
+        center: [104.114129, 37.550339],
+        zoom: 5,
+        roam: true
+      },
+      visualMap: {
+        show: false,
+        top: 'top',
+        min: 0,
+        max: 5,
+        seriesIndex: 0,
+        calculable: true,
+        inRange: {
+          color: ['blue', 'blue', 'green', 'yellow', 'red']
+        }
+      },
+      series: [
+        {
+          type: 'heatmap',
+          coordinateSystem: 'bmap',
+          data: points,
+          pointSize: 5,
+          blurSize: 6
+        }
+      ]
+    })
+  );
+  // 添加百度地图插件
+  var bmap = myChart.getModel().getComponent('bmap').getBMap();
+  bmap.addControl(new BMap.MapTypeControl());
+
+
+if (option && typeof option === 'object') {
+    myChart.setOption(option);
+}
+
+        </script>
+    </body>
+</html>

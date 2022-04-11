@@ -1,0 +1,7 @@
+{
+  "name": "djangoProject2",
+  "version": "1.0.0",
+  "devDependencies": {
+    "echarts": "^5.3.1"
+  }
+}

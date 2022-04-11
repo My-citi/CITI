@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+            {% load static %}
+    <script src="{% static '/js/echarts.min.js' %}"></script>
+    <script src="{% static '/js/ecStat.min.js' %}"></script>
+    <script src="{%static '/js/echarts.js' %}"></script>
+    <script src="{% static '/js/china.js'%}"></script>
+    <script src="{% static '/json/chalk_theme.js' %}"></script>
+</head>
+    <style>
+        * {
+            margin: 0;
+            padding: 0
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        #main {
+            width: 600px;
+            height: 450px;
+            margin: 0px auto;
+            border: 1px solid #ddd;
+        }
+
+        /*默认长宽比0.75*/
+    </style>
+<body>
+    <div id="main"></div>
+    <script type="text/javascript">
+var chartDom = document.getElementById('main');
+{#echarts.registerMap('china');#}
+var myChart = echarts.init(chartDom);
+var datalist = {{ lists|safe }}
+var mapoption;
+var baroption;
+
+baroption = {
+  title: {
+    text: 'Provincial Salary'
+  },
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'shadow'
+    }
+  },
+  legend: {},
+  grid: {
+    left: '3%',
+    right: '4%',
+    bottom: '3%',
+    containLabel: true
+  },
+  xAxis: {
+    type: 'value',
+    boundaryGap: [0, 0.01]
+  },
+  yAxis: {
+    type: 'category',
+    data: datalist.map(function (item) {
+        return item.name;
+      })
+  },
+  series: [
+    {
+      type: 'bar',
+      data: datalist.map(function (item) {
+        return item.value;
+      })
+    }
+  ]
+};
+mapoption = {
+            visualMap: {
+                min: 5000,
+                max: 10000,
+                left: 'left',
+                top: 'bottom',
+                text: ['高', '低'],//取值范围的文字
+                show: true//图注
+            },
+            geo: {
+                map: 'china',
+                roam: false,//不开启缩放和平移
+                zoom: 1.23,//视角缩放比例
+                label: {
+                    normal: {
+                        show: true,
+                        fontSize: '10',
+                        color: 'rgba(0,0,0,0.7)'
+                    }
+                },
+                itemStyle: {
+                    normal: {
+                        borderColor: 'rgba(0, 0, 0, 0.2)'
+                    },
+                    emphasis: {
+                        areaColor: '#009eff',//鼠标选择区域颜色
+                        shadowOffsetX: 0,
+                        shadowOffsetY: 0,
+                        shadowBlur: 20,
+                        borderWidth: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            },
+            series: [
+                {
+                    name: '平均薪酬',
+                    type: 'map',
+                    geoIndex: 0,
+                    data: datalist
+                }
+            ]
+        };
+
+  myChart.setOption(mapoption);
+
+  myChart.on('click', function (params) {
+      alert(params.name + "平均薪资数据："+params.value);
+        });
+    </script>
+</body>
+</html>

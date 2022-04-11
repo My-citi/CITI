@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<title>MyCity - 城市画像</title>
+        {% load static %}
+{#        {% static 'js/flexible.js' %}#}
+		<link rel="stylesheet" type="text/css" href={% static 'css/app.css' %} />
+        <style>
+ *{
+            margin: 0px;
+            padding: 0px;
+        }
+        video{
+            position: fixed;
+            right: 0px;
+            bottom: 0px;
+            min-width: 100%;
+            min-height: 100%;
+            height: auto;
+            width: auto;
+            /*加滤镜*/
+            /*filter: blur(15px); //背景模糊设置 */
+            /*-webkit-filter: grayscale(100%);*/
+            /*filter:grayscale(100%); //背景灰度设置*/
+            z-index:-11
+        }
+        source{
+            min-width: 100%;
+            min-height: 100%;
+            height: auto;
+            width: auto;
+        }
+      p{
+          width: 100%;
+         text-align: center;
+         font-size: 40px;
+         color: white;
+      }
+</style>
+        <video autoplay loop muted>
+  <source src={% static 'img/bg.mp4' %} type="video/mp4"/>
+</video>
+
+	</head>
+
+	<body>
+		<header id="header">
+            <h3 class='header-title' id = 'title'></h3>
+		</header>
+
+		<div id="container">
+			<div id="flexCon">
+				<div class="flex-row">
+					<div class="flex-cell flex-cell-l">
+						<div class="chart-wrapper">
+							<h3 class="chart-title">热门职业</h3>
+							<div class="chart-div">
+							</div>
+						</div>
+					</div>
+					<div class="flex-cell flex-cell-c">
+						<div class="chart-wrapper">
+							<h3 class="chart-title">省份地图</h3>
+							<div class="chart-div"></div>
+						</div>
+					</div>
+					<div class="flex-cell flex-cell-r">
+						<div class="chart-wrapper">
+							<h3 class="chart-title">三大产业就业人口比重</h3>
+							<div class="chart-div chart-done">
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="flex-row">
+					<div class="flex-cell flex-cell-r">
+						<div class="chart-wrapper">
+							<h3 class="chart-title">近九年GDP增长状况</h3>
+							<div class="chart-div"></div>
+						</div>
+					</div>
+                    <div class="flex-cell flex-cell-r">
+						<div class="chart-wrapper">
+							<h3 class="chart-title">外贸综合状况</h3>
+							<div class="chart-div chart-done"></div>
+						</div>
+					</div>
+					<div class="flex-cell flex-cell-r">
+						<div class="chart-wrapper">
+							<h3 class="chart-title">教育资源保有状况</h3>
+							<div class="chart-div chart-done">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+
+    <script src="{% static 'js/flexible.js' %}"></script>
+    <script src="{% static 'js/echarts.min.js' %}"></script>
+    <script src="{% static 'js/jquery.js' %}"></script>
+    <!-- 引入china.js 完成地图模块 -->
+        <script src="{% static '/js/china.js'%}"></script>
+    <script src="{% static 'js/echarts-5.3.0/test/data/map/json/china.json'%}"></script>
+    <script src="{% static 'js/extension/wordcloud/echarts-wordcloud.min.js'%}"></script>
+
+
+
+{#    省份地图#}
+<script type="text/javascript">
+    //data
+    var url = decodeURI(location.search); //获取url中"?"符后的字串 ('?modFlag=business&role=1')
+            var theRequest = new Object();
+            if (url.indexOf("?") != -1) {
+                var str = url.substr(1); //substr()方法返回从参数值开始到结束的字符串；
+                var strs = str.split("&");
+                for (var i = 0; i < strs.length; i++) {
+                    theRequest[strs[i].split("=")[0]] = (strs[i].split("=")[1]);
+                }
+                console.log(theRequest); //此时的theRequest就是我们需要的参数；
+            }
+
+    var dom = document.querySelector(".flex-cell-c .chart-wrapper .chart-div");
+    var myChart = echarts.init(dom);
+    var dict = {'安徽': 'anhui', '澳门': 'aomen', '北京': 'beijing', '重庆': 'chongqing', '福建': 'fujian', '甘肃': 'gansu', '广东': 'guangdong', '广西': 'guangxi', '贵州': 'guizhou', '海南': 'hainan', '河北': 'hebei', '黑龙江': 'heilongjiang', '河南': 'henan', '湖北': 'hubei', '湖南': 'hunan', '江苏': 'jiangsu', '江西': 'jiangxi', '吉林': 'jilin', '辽宁': 'liaoning', '内蒙古': 'neimenggu', '宁夏': 'ningxia', '青海': 'qinghai', '山东': 'shandong', '上海': 'shanghai', '山西': 'shanxi', '陕西': 'shanxi1', '四川': 'sichuan', '台湾': 'taiwan', '天津': 'tianjin', '香港': 'xianggang', '新疆': 'xinjiang', '西藏': 'xizang', '云南': 'yunnan', '浙江': 'zhejiang'}
+    myChart.showLoading();
+    var eng_name = dict[theRequest['province']]
+    console.log(theRequest['province'])
+
+    var province_captain_dict = {'黑龙江': '哈尔滨', '吉林': '长春', '辽宁': '沈阳', '内蒙古': '呼和浩特', '北京': '北京', '天津': '天津', '河北': '石家庄', '山东': '济南', '山西': '太原', '陕西': '西安', '甘肃': '兰州', '新疆': '乌鲁木齐', '青海': '西宁', '西藏': '拉萨', '四川': '成都', '河南': '郑州', '江苏': '南京', '安徽': '合肥', '湖北': '武汉', '重庆': '重庆', '贵州': '贵阳', '湖南': '长沙', '江西': '南昌', '上海': '上海', '浙江': '杭州', '福建': '福州', '云南': '昆明', '广西': '南宁', '广东': '广州', '海南': '海口', '香港': '香港', '澳门': '澳门', '台湾': '台北','宁夏' :'银川'}
+
+    //页面初始化
+    $.post('/api/city_info',
+            {'name':province_captain_dict[theRequest['province']] }
+            ,function (data){recommand_jobs(data['recommand_data']);
+                         gdp_development(data['gdp_data']);
+                         industry_(data['job_percentage_data']);
+                         education(data['education_data']);
+                         trade(data['trade_data']);});
+
+
+         x=document.getElementById("title");
+         x.innerHTML = province_captain_dict[theRequest['province']]+" - 城市画像"
+
+    $.get("/static/province/"+eng_name+".json",function (provinceJson)
+    {
+        myChart.hideLoading();
+        echarts.registerMap(eng_name, provinceJson);
+    const province_mapOption = {
+                                series: [
+                                {
+                                    center:'',
+                                    type: 'map',
+                                    roam: true,
+                                    map: eng_name,
+                                    label:{show:true},
+                                }
+                                ],
+                                label:{show:true},
+                                };
+    myChart.setOption(province_mapOption);
+    if (theRequest['province']!=='北京' && theRequest['province']!=='上海' && theRequest['province']!=='天津' && theRequest['province']!=='重庆')
+    {
+        myChart.on('click',function (params)
+        {
+            $.post('/api/city_info',
+            {'name': params.name}
+            ,function (data){recommand_jobs(data['recommand_data']);
+                         gdp_development(data['gdp_data']);
+                         industry_(data['job_percentage_data']);
+                         education(data['education_data']);
+                         trade(data['trade_data']);
+
+                         x=document.getElementById("title");
+                         x.innerHTML = params.name+" - 城市画像"
+            })
+        })
+    }
+    else
+    {
+        myChart.on('click',function ()
+        {
+            $.post('/api/city_info',
+            {'name': theRequest['province']}
+            ,function (data){recommand_jobs(data['recommand_data']);
+                         gdp_development(data['gdp_data']);
+                         industry_(data['job_percentage_data']);
+                         education(data['education_data']);
+                         trade(data['traffic_data']);})
+        })
+
+    }
+    })
+
+
+
+    </script>
+
+{#    词云#}
+<script type = "text/javascript">
+function recommand_jobs(recommand_data){
+
+    var dom = document.querySelector(".flex-cell-l .chart-wrapper .chart-div");
+    var myChart = echarts.init(dom);
+// 基于准备好的dom，初始化echarts实例
+    var option = {
+
+      tooltip: {},
+      series: [{
+                  left: 'center',
+        top: 'center',
+        width: '100%',
+        height: '100%',
+        right: null,
+        bottom: null,
+          label:{show:false},
+        type: 'wordCloud',
+        gridSize: 2,
+        sizeRange: [12, 50],
+        // rotationRange: [-90, 90],
+        rotationRange: [-50, 50],
+        shape: 'rectangle',
+        // width: 100,
+        // height: 400,
+        textStyle: {
+          normal: {
+            color: function () {
+              return 'rgb(' + [
+                Math.round(Math.random() * 255),
+                Math.round(Math.random() * 255),
+                Math.round(Math.random() * 255)
+              ].join(',') + ')';
+            }
+          },
+          emphasis: {
+            shadowBlur: 10,
+            shadowColor: '#333'
+          }
+        },
+        data:recommand_data
+      }]}
+    console.log(recommand_data)
+        myChart.setOption(option);
+}
+
+</script>
+
+{#城市GDP增长#}
+<script type = "text/javascript">
+function gdp_development(gdp_data){
+chartDom = document.querySelector("#flexCon > div:nth-child(2) > div:nth-child(1) > div > div");
+var myChart = echarts.init(chartDom);
+var option;
+
+option = {
+  xAxis: {
+          name:'年份',
+    type: 'category',
+      boundaryGap:false,
+    data: [2010, 2011, 2012, 2013, 2014, 2015, 2016,2017,2018,2019]
+  },
+  yAxis: {
+        name:'GDP/万元',
+    type: 'value'
+  },
+    tooltip: {
+    trigger: 'item'
+  },
+    grid:{left:"18%",
+          top:"10%",
+          bottom:"5%"},
+
+  series: [
+    {
+      data: gdp_data,
+      type: 'line',
+      smooth: true,
+        areaStyle:{}
+    }
+  ]
+};
+
+option && myChart.setOption(option);
+}
+</script>
+
+{#三大产业就业人口比重#}
+<script type = "text/javascript">
+
+function industry_(industry_data){
+var app = {};
+
+var chartDom = document.querySelector(".flex-cell-r .chart-wrapper .chart-div");;
+var myChart = echarts.init(chartDom);
+var option;
+
+option = {
+  tooltip: {
+    trigger: 'item'
+  },
+    legend: {
+    top: '0%',
+    left: 'center',
+    textStyle: {color:'rgba(255,255,255,255)'}
+  },
+  series: [
+    {
+      type: 'pie',
+      radius: ['40%', '70%'],
+      avoidLabelOverlap: false,
+      itemStyle: {
+        borderRadius: 10,
+        borderColor: '#fff',
+        borderWidth: 2
+      },
+      label: {
+        show: false,
+        position: 'center'
+      },
+      emphasis: {
+        label: {
+          show: true,
+          fontSize: '20',
+          fontWeight: 'bold'
+        }
+      },
+      labelLine: {
+        show: false
+      },
+      data: industry_data
+    }
+  ]
+};
+
+option && myChart.setOption(option);
+}
+
+</script>
+
+{#    城市教育资源数据#}
+<script type = "text/javascript">
+    function education(education_data){
+        var chartDom = document.querySelector("#flexCon  div:nth-child(2)  div:nth-child(3)  div  div");
+var myChart = echarts.init(chartDom);
+var option = {
+  polar: {
+    radius: [30, '80%']
+  },
+  angleAxis: {
+    max: 400,
+    startAngle: 85
+  },
+  radiusAxis: {
+    type: 'category',
+    data: ['普通高等院校', '中学', '小学']
+  },
+  tooltip: {},
+  series: {
+    type: 'bar',
+    data: education_data,
+    coordinateSystem: 'polar',
+    label: {
+      show: true,
+      position: 'middle',
+      formatter: '{b}: {c}'
+    },
+
+  }
+};
+     option && myChart.setOption(option);
+    }
+</script>
+
+{#外贸状况#}
+<script type="text/javascript">
+function trade(trade_data){
+
+var chartDom = document.querySelector("#flexCon > div:nth-child(2) > div:nth-child(2) > div > div");
+var myChart = echarts.init(chartDom);
+const dataBJ = [
+  [trade_data['big_industry_num'],trade_data['foreign_enterprise'],
+      trade_data['hmt_enterprise'],trade_data['foreign_subjects'],trade_data['import_value']],
+];
+const lineStyle = {
+  width: 1,
+  opacity: 0.5
+};
+if (trade_data['import_value']===235047999)
+{
+    var k = 235047999
+}
+else {
+    k = 235047999 *  (trade_data['big_industry_num'] / 0.8 ) /11042
+}
+option = {
+  //title: {
+  //  text: 'AQI - Radar',
+  //  left: 'center',
+  //  textStyle: {
+  //    color: '#eee'
+  //  }
+  //},
+  //legend: {
+  //  bottom: 5,
+  //  data: ['Beijing', 'Shanghai', 'Guangzhou'],
+  //  itemGap: 20,
+  //  textStyle: {
+  //    color: '#fff',
+  //    fontSize: 14
+  //  },
+  //  selectedMode: 'single'
+  //},
+  radar: {
+      center: ['50%', '55%'],
+    indicator: [
+      { name: '规模工业企业数(个)', max: trade_data['big_industry_num'] / 0.8 },//11042
+      { name: '外商投资企业(个)', max: 2215  *  (trade_data['big_industry_num'] / 0.8 )/11042 },//2215
+      { name: '港澳台商投资企业(个)', max: 2838 *  (trade_data['big_industry_num'] / 0.8 )/11042},//2838
+      { name: '外商直接投资项目(个)', max:   6800 *  (trade_data['big_industry_num'] / 0.8 )/11042},//6800
+      { name: '货物进口额(万元)', max: k },//235047999
+
+    ],
+    shape: 'circle',
+    splitNumber: 5,
+    axisName: {
+        fontSize: '13',
+      color: '#ffffff'
+    },
+    splitLine: {
+      lineStyle: {
+        color: [
+          'rgba(255,255,255,0.1)',
+          'rgba(255,255,255,0.2)',
+          'rgba(255,255,255,0.4)',
+          'rgba(255,255,255,0.6)',
+          'rgba(255,255,255,0.8)',
+          'rgb(255,255,255)'
+        ].reverse()
+      }
+    },
+    splitArea: {
+      show: false
+    },
+    axisLine: {
+      lineStyle: {
+        color: 'rgba(255,255,255,0.5)'
+      }
+    }
+  },
+    tooltip: {
+    trigger: 'item'
+  },
+  series: [
+    {
+      name: trade_data['name'],
+      type: 'radar',
+      lineStyle: lineStyle,
+      data: dataBJ,
+      symbol: 'none',
+      itemStyle: {
+        color: '#3cc7f9'
+      },
+      areaStyle: {
+        opacity: 0.3
+      }
+    },
+
+  ]
+};
+option && myChart.setOption(option);}
+
+</script>
+
+
+</html>

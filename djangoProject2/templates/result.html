@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      {% load static %}
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>FindACity - 就业城市推荐</title>
+        <link rel="icon" type="image/x-icon" href="{% static "results/assets/favicon.ico" %}" />
+        <!-- Font Awesome icons (free version)-->
+<!--        <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>-->
+        <!-- Google fonts-->
+        <link rel="preconnect" href="https://fonts.gstatic.com" />
+        <link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&amp;display=swap" rel="stylesheet" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="{% static "results/css/styles.css" %}" rel="stylesheet" />
+    </head>
+    <body>
+        <!-- Background Video-->
+        <video class="bg-video" playsinline="playsinline" autoplay="autoplay" muted="muted" loop="loop"><source src="{% static "results/assets/mp4/bg.mp4" %}" type="video/mp4" /></video>
+        <!-- Masthead-->
+        <div class="masthead">
+            <div class="masthead-content text-white">
+                <div class="container-fluid px-4 px-lg-0">
+                    <h1 class="fst-italic lh-1 mb-4">适合您的城市正在不远处等你</h1>
+                    <p class="mb-5">请查看我们为您推荐的城市。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="social-icons">
+            <div class="d-flex flex-row flex-lg-column justify-content-center align-items-center h-100 mt-3 mt-lg-0" id = "recommend_list">
+            </div>
+        </div>
+
+    </body>
+
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+
+    <script type="text/javascript">
+        $(function recommand(){
+            var city = {{ city|safe }}
+            var html=""
+        $("#recommend_list").append(html);
+        $.map(city, function(item)
+        {
+            html += "<h1 class='text-light'>"+item+"<a class='btn btn-outline-light m-3' href='./city_detail?province="+item+"'"+"></a></h1>";
+            console.log(html)
+        });
+            $("#recommend_list").append(html);
+        });
+    </script>
+</html>

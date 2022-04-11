@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>map</title>
+        {% load static %}
+    <script src="{% static '/js/echarts.min.js' %}"></script>
+    <script src="{% static '/js/ecStat.min.js' %}"></script>
+    <script src="{%static '/js/echarts.js' %}"></script>
+    <script src="{% static '/js/china.js'%}"></script>
+    <script src="{% static '/json/chalk_theme.js' %}"></script>
+    <link rel="shortcut icon" href='#'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        #main {
+            width: 600px;
+            height: 450px;
+            margin: 0px auto;
+            border: 1px solid #ddd;
+        }
+
+        /*默认长宽比0.75*/
+    </style>
+</head>
+
+<div class="text" style=" text-align:center;">
+    <font size="13" color="#660066">
+        <br />
+        中国各省平均薪酬
+    </font>
+</div>
+
+<body>
+    <div id="main">
+
+    </div>
+    <script type="text/javascript">
+        var dataList =
+        {{ lists|safe }}
+
+        var myChart = echarts.init(document.getElementById('main'),'light');
+        option = {
+            visualMap: {
+                min: 5000,
+                max: 10000,
+                left: 'left',
+                top: 'bottom',
+                text: ['高', '低'],//取值范围的文字
+                inRange: {
+                    color: ['#e0ffff', '#006edd']//取值范围的颜色
+                },
+                show: true//图注
+            },
+            geo: {
+                map: 'china',
+                roam: false,//不开启缩放和平移
+                zoom: 1.23,//视角缩放比例
+                label: {
+                    normal: {
+                        show: true,
+                        fontSize: '10',
+                        color: 'rgba(0,0,0,0.7)'
+                    }
+                },
+                itemStyle: {
+                    normal: {
+                        borderColor: 'rgba(0, 0, 0, 0.2)'
+                    },
+                    emphasis: {
+                        areaColor: '#009eff',//鼠标选择区域颜色
+                        shadowOffsetX: 0,
+                        shadowOffsetY: 0,
+                        shadowBlur: 20,
+                        borderWidth: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            },
+            series: [
+                {
+                    name: '平均薪酬',
+                    type: 'map',
+                    geoIndex: 0,
+                    data: dataList
+                }
+            ]
+        };
+        myChart.setOption(option);
+
+    </script>
+</body>
+
+<div class="text" style=" padding: 0px 0px 0px 58%">
+    <font size="3" color="black">
+        <br />
+        注：缺少港澳台相关数据。
+    </font>
+</div>
+
+<div class="text" style=" padding: 0px 0px 0px 60%;">
+    <font size="1" color="black">
+        <br />
+    </font>
+</div>
+
+</html>

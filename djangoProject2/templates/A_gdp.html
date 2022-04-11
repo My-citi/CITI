@@ -1,0 +1,105 @@
+<!--
+    THIS EXAMPLE WAS DOWNLOADED FROM https://echarts.apache.org/examples/zh/editor.html?c=map-bar-morph
+-->
+<!DOCTYPE html>
+<html style="height: 100%">
+    <head>
+        <meta charset="utf-8">
+                <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+          <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@5.3.1/dist/echarts.min.js"></script>
+            {% load static %}
+            <script src="{% static '/js/echarts.min.js' %}"></script>
+    <script src="{% static '/js/ecStat.min.js' %}"></script>
+    <script src="{%static '/js/echarts.js' %}"></script>
+    <script src="{% static '/js/china.js'%}"></script>
+    <script src="{% static '/json/chalk_theme.js' %}"></script>
+{#        <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=z96y5HWTuUfIu1dupEvCl6YNKmE1TUVG"></script>#}
+        <script type="text/javascript" src="{% static 'js/echarts-5.3.0/test/data/map/json/china.json' %} "></script>
+
+    </head>
+    <body style="height: 100%; margin: 0">
+        <div id="container" style="height: 100%"></div>
+
+        <script type="text/javascript">
+var dom = document.getElementById("container");
+var myChart = echarts.init(dom);
+var app = {};
+
+var option;
+
+
+myChart.showLoading();
+$.get( "{% static 'js/echarts-5.3.0/test/data/map/json/china.json'%}", function (chinaJson) {
+  myChart.hideLoading();
+  echarts.registerMap('china',  chinaJson);
+  var data = {{ lists|safe }}
+  data.sort(function (a, b) {
+    return a.value - b.value;
+  });
+  const mapOption = {
+                  visualMap: {
+                min: 11000,
+                max: 100000,
+                left: 'left',
+                top: 'bottom',
+                text: ['高', '低'],//取值范围的文字
+                show: true//图注
+            },
+    series: [
+      {
+        id: 'salary',
+        type: 'map',
+        roam: true,
+        map: 'china',
+        animationDurationUpdate: 1000,
+        universalTransition: true,
+        data: data
+      }
+    ]
+  };
+  const barOption = {
+    xAxis: {
+        name:"GDP/单位：万亿",
+      type: 'value'
+    },
+    yAxis: {
+        name:"省份",
+      type: 'category',
+      axisLabel: {
+        rotate: 30
+      },
+      data: data.map(function (item) {
+        return item.name;
+      })
+    },
+        tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'shadow'
+    }
+  },
+    animationDurationUpdate: 1000,
+    series: {
+      type: 'bar',
+      id: 'salary',
+      data: data.map(function (item) {
+        return item.value;
+      }),
+      universalTransition: true
+    }
+  };
+  let currentOption = mapOption;
+  myChart.setOption(mapOption);
+  setInterval(function () {
+    currentOption = currentOption === mapOption ? barOption : mapOption;
+    myChart.setOption(currentOption, true);
+  }, 10000);
+});
+
+if (option && typeof option === 'object') {
+    myChart.setOption(option);
+}
+
+        </script>
+    </body>
+</html>
